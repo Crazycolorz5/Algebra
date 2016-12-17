@@ -39,9 +39,11 @@ instance Functor ListOf where
 takeOfList 0 = const nil
 takeOfList n = listCata (productCase nil (cons . second (takeOfList (pred n))))
                       
-lengthOfList = catamorphism (productCase 0 (succ . snd)) . unList
+lengthOfList = listCata (productCase 0 (succ . snd))
 
+concatOfLists l1 l2 = listCata (productCase l2 cons) l1
 
+reverseOfList = listCata (productCase nil (\(a, l) -> concatOfLists l (cons (a, nil)))) 
 
 ones = cons (1, ones)
 twos = List (initial (Prod 2 (unList twos)))
