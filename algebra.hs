@@ -1,3 +1,5 @@
+module Algebra (Algebra, Fix, initial, unInitial) where
+
 type Algebra f a = f a -> a
 
 --Fix :: (*->*)->*
@@ -6,12 +8,12 @@ data Fix f = Rec (f (Fix f)) --If f is a functor
 --Must be data for lazy typechecking -- otherwise constructs the infinite type f = f (Fix f)
 
 -- ->, combines an f (Fix f) into just a Fix F
-initialAlgebra :: (Functor f) => Algebra f (Fix f)
-initialAlgebra = Rec
+initial :: (Functor f) => Algebra f (Fix f)
+initial = Rec
 
 -- <-, deconstruction
-inverseInitial :: (Fix f) -> f (Fix f)
-inverseInitial (Rec f) = f
+unInitial :: (Fix f) -> f (Fix f)
+unInitial (Rec f) = f
 
 --A morphism between Algebra f a and Algebra f b is just
 --a normal function f :: a -> b, satisfying
@@ -24,7 +26,7 @@ type AlgebraMorphism a b = a -> b
 --Now, a catamorphism is the unique morphism from this initial algebra, to some other algebra
 catamorphism ::(Functor f) => Algebra f x -> AlgebraMorphism (Fix f) x
 --But by the commutative square, we can define it by the other edges. 
-catamorphism alg = alg . fmap (catamorphism alg) . inverseInitial
+catamorphism alg = alg . fmap (catamorphism alg) . unInitial
 -- basically, |^ = -> . |^ . <-
 
 
@@ -56,15 +58,15 @@ instance Functor ListOf where
 
 
 cons:: (a, ListOf a) -> ListOf a
-cons (a, List l) = let x = (Prod a l) in List $ initialAlgebra x
+cons (a, List l) = let x = (Prod a l) in List $ initial x
                        
 uncons :: ListOf a -> Maybe (a, ListOf a)
 uncons (List (Rec inside)) = case inside of
                             Unit -> Nothing
                             Prod x l -> Just (x, List l)
 
-data Id a = ItsAn a
-type Peano = (Fix Id)
+-- data Id a = ItsAn a
+data Peano = P (Fix Maybe)
 
 ones = cons (1, ones)
 
