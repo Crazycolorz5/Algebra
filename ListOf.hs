@@ -47,6 +47,9 @@ concatOfLists l1 l2 = listCata (productCase l2 cons) l1
 
 reverseOfList = listCata (productCase nil (\(a, l) -> concatOfLists l (cons (a, nil)))) 
 
+mapAsCata f = listCata (productCase nil (cons . first f))
+mapAsAna f = listAna (\l -> case uncons l of Nothing -> Unit; Just (h, t) -> Prod (f h) t)
+
 ones = cons (1, ones)
 twos = List (initial (Prod 2 (unList twos)))
 
